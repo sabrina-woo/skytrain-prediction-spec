@@ -22,6 +22,8 @@ Exclude
 ## 5) Metrics
 - MAE (Mean Absolute Error,  a metric that measures the average of the absolute differences between a model's predicted values and the true (actual) values) percentage points of occupancy is a viable metric  that can be used as it is easy to explain and interpret. This is good for giving passengers or planners a sense of average reliability, but not sufficient alone if missing spikes in occupancy creates overcrowding harms.
 - AUC-PR (Area Under the Precision-Recall Curve measures how well a model distinguishes positives from negatives, especially useful when the dataset is imbalanced)can be used as a supplementary metric since it is more informative (in comparison to other metrics) with imbalanced data and thus best for minimizing passenger harm from missed crowded-train warnings (false negatives) while balancing annoyance from false alarms (false positives).
+- p95 Latency: <500ms per request. This will ensure predictions are fast enough to be served in real time within a transit app, where users expect crowding information before boarding.
+- Max Cost per 10k Predictions: <$1. LightGBM is lightweight and runs efficiently on AWS Lambda (~100ms execution, 128–256MB). Lambda offers automatic scaling for surges without pre-provisioning, with API Gateway and CloudWatch integration. While GCP and Azure offer similar options, AWS’s breadth of cloud services, proven reliability, tooling, and scalability make it the most reliable choice for real-time transit predictions.
 
 ## 6) API Sketch
 POST /predictCrowding
@@ -69,9 +71,11 @@ Major components and data flow. Note trade-offs and alternatives.
    Mitigation: Deploy with AWS Lambda and API Gateway auto-scaling, add caching tier for frequent queries.
    How to test: Load test with Locust or JMeter at surge levels, track p95 latency under stress.
 ## 10) Measurement Plan
-Metric: Compare Mean Absolute Error (MAE) between baseline dummy model and the trained LightGBM model. HTe trained LightGBM model should reduce MAE by ≥20% over baseline.
-- p95 Latency: <500ms per request. This will ensure predictions are fast enough to be served in real time within a transit app, where users expect crowding information before boarding.
-- Max Cost per 10k Predictions: <$1. LightGBM is lightweight and runs efficiently on AWS Lambda (~100ms execution, 128–256MB). Lambda offers automatic scaling for surges without pre-provisioning, with API Gateway and CloudWatch integration. While GCP and Azure offer similar options, AWS’s breadth of cloud services, proven reliability, tooling, and scalability make it the most reliable choice for real-time transit predictions.
+- Metric: Compare Mean Absolute Error (MAE) between baseline dummy model and the trained LightGBM model. The trained LightGBM model should reduce MAE by ≥20% over baseline.
+- AUC-PR: Compare predicted crowding probabilities against ground-truth occupancy.
+- p95 Latency: Log response times for all requests. The 95th percentile should remain under 500ms even at surge traffic levels.
+- Max Cost per 10k Predictions: Estimated by running inference benchmarks on AWS Lambda with the chosen configuration, then project the cost using AWS’s Lambda pricing calculator.
+
 
 ## 11) Evolution & Evidence	
 Link a git hash (or range/tag) that shows the design’s evolution (commits, README updates, diagrams).
