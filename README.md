@@ -43,7 +43,7 @@ Purpose: predict future train crowding to inform passengers and operations plann
 Retention: raw logs (e.g., per-trip counts) retained ≤ 14 days; aggregated features stored 90–180 days for modeling.
 - Access: role-based least privilege; engineers and data scientists only, no external backdoors.
 
-Telemetry decision matrix:
+- Telemetry decision matrix:
 
 Train stop/direction metadata → high value, low invasiveness, low effort → keep
 
@@ -62,10 +62,10 @@ Major components and data flow. Note trade-offs and alternatives.
 ## 9) Risks & Mitigations
 1. Risk: Collecting identifiable passenger data (e.g., ticket IDs, device IDs, precise geolocation) could expose personal information.
    Mitigation: Excluded all PII from features, collected train stop and direction instead of tracking user's live geographical location. Only aggregate counts/time/location buckets are used.
-2. Risk:  Model bias across routes/times. Some routes/times may be underrepresented in training data, leading to biased crowding predictions.
+3. Risk:  Model bias across routes/times. Some routes/times may be underrepresented in training data, leading to biased crowding predictions.
    Mitigation: Monitor per-route and per-time-slot error rates.
    How to test: Slice evaluation (e.g., MAE by route, by peak/off-peak).
-3. Risk: reliability under surge traffic -- API traffic spikes (50k/hour) can lead to latency or failures.
+5. Risk: reliability under surge traffic -- API traffic spikes (50k/hour) can lead to latency or failures.
    Mitigation: Deploy with AWS Lambda and API Gateway auto-scaling, add caching tier for frequent queries.
    How to test: Load test with Locust or JMeter at surge levels, track p95 latency under stress.
 ## 10) Measurement Plan
